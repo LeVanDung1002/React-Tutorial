@@ -1,8 +1,15 @@
 import { useState } from "react";
 import { useForm } from "../../hooks/useFormHook";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../../store/type";
+import { setUser } from "../../reducer/UserSlice";
+import type { UserInfo } from "../../types/user";
 
 export default function Login() {
+
+  const dispatch = useDispatch<AppDispatch>()
+
   const navigate = useNavigate();
   const { register, useField } = useForm()
   const usernameField = useField("username")
@@ -16,6 +23,7 @@ export default function Login() {
     if (usernameField.error || passwordField.error) return
 
     if (usernameField.value === "abcdef" && passwordField.value === "Abc123@@") {
+      dispatch(setUser({username: usernameField.value, password: passwordField.value} as UserInfo))
       navigate("/dashboard", { replace: true })
     }
   }
