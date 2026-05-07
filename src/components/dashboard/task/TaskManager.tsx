@@ -1,8 +1,34 @@
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../../store/store";
+import { addTodo, deleteTodo, filterTodo, TodoFilter, toggleTodo } from "../../../reducer/TodoSlice";
+import { useMemo, useState } from "react";
+
 type TaskManagerProps = {
   isOpen: boolean;
 };
 
 export default function TaskManager({ isOpen }: TaskManagerProps) {
+
+  const [nameTask, setNameTask] = useState("")
+  const tasks = useSelector((state: RootState) => state.todos.todos)
+  const filterTag = useSelector((state: RootState) => state.todos.filterTag)
+  const dispatch = useDispatch<AppDispatch>()
+  const remaining = tasks.filter(t => !t.isCompleted).length
+
+
+  const filteredTasks = useMemo(() => {
+    if (filterTag === TodoFilter.ALL) {
+      return tasks
+    }
+
+    if (filterTag === TodoFilter.ACTIVE) {
+      return tasks.filter(task => !task.isCompleted)
+    }
+
+    return tasks.filter(task => task.isCompleted)
+  }, [tasks, filterTag])
+
+
   return (
     <main
       className={`absolute inset-0 p-8 transition-all duration-300 ease-in-out
@@ -20,7 +46,7 @@ export default function TaskManager({ isOpen }: TaskManagerProps) {
           </h1>
 
           <span className="text-sm text-gray-500">
-            2 tasks left
+            {remaining} {remaining > 1 ? "tasks" : "task"} left
           </span>
         </div>
 
@@ -29,23 +55,26 @@ export default function TaskManager({ isOpen }: TaskManagerProps) {
           <input
             placeholder="What do you need to do?"
             className="flex-1 px-3 py-2 outline-none text-sm"
+            value={nameTask}
+            onChange={(e) => setNameTask(e.target.value)}
           />
           <button className="px-4 py-2 bg-blue-600 text-white rounded-lg 
-          hover:bg-blue-700 active:scale-95 transition text-sm font-medium">
+          hover:bg-blue-700 active:scale-95 transition text-sm font-medium" onClick={() => dispatch(addTodo(nameTask))}>
             + Add
           </button>
         </div>
 
         {/* Filter */}
         <div className="flex gap-2">
-          {["All", "Active", "Done"].map((item, i) => (
+          {[TodoFilter.ALL, TodoFilter.ACTIVE, TodoFilter.COMPLETED].map((item, i) => (
             <button
               key={i}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition
-                ${i === 0
+                ${filterTag === item
                   ? "bg-blue-600 text-white shadow"
                   : "bg-white text-gray-600 hover:bg-gray-100"}
               `}
+              onClick={() => dispatch(filterTodo(item))}
             >
               {item}
             </button>
@@ -55,68 +84,51 @@ export default function TaskManager({ isOpen }: TaskManagerProps) {
         {/* Task List */}
         <div className="space-y-3">
 
-          {/* Active Task */}
-          <div className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition flex items-center justify-between group">
-            
-            <div className="flex items-center gap-3">
-              {/* Toggle */}
-              <button className="w-6 h-6 rounded-full border-2 border-gray-300 
-              flex items-center justify-center transition 
-              hover:border-blue-500 active:scale-90">
-              </button>
+          {filteredTasks.map((task) => (
+            <div key={task.id} className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition flex items-center justify-between group">
 
-              {/* Text */}
-              <div>
-                <p className="font-medium text-gray-800">
-                  Build React Dashboard
-                </p>
-                <p className="text-xs text-gray-400">
-                  2 hours ago
-                </p>
+              <div className="flex items-center gap-3">
+                {/* Toggle */}
+                <button
+                  className={`
+                  w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs transition
+                  ${task.isCompleted
+                      ? "bg-blue-600 border-blue-600 text-white"
+                      : "border-gray-300 hover:border-blue-500 active:scale-90"}
+                  `}
+                  onClick={() => dispatch(toggleTodo(task.id))}
+                >
+                  {task.isCompleted && "✓"}
+                </button>
+
+                {/* Text */}
+                <div>
+                  <p className={`font-medium ${task.isCompleted ? "text-gray-400 line-through" : "text-gray-800"}`}>
+                    {task.name}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {task.date}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            {/* Delete */}
-            <button className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition">
-              ✕
-            </button>
-          </div>
-
-          {/* Done Task */}
-          <div className="bg-white p-4 rounded-xl shadow-sm flex items-center justify-between opacity-70">
-            
-            <div className="flex items-center gap-3">
-              {/* Toggle Done */}
-              <button className="w-6 h-6 rounded-full bg-blue-600 border-2 border-blue-600 
-              flex items-center justify-center text-white text-xs">
-                ✓
+              {/* Delete */}
+              <button className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition" onClick={() => dispatch(deleteTodo(task.id))}>
+                ✕
               </button>
-
-              {/* Text */}
-              <div>
-                <p className="font-medium text-gray-400 line-through">
-                  Learn Redux Toolkit
-                </p>
-                <p className="text-xs text-gray-400">
-                  Yesterday
-                </p>
-              </div>
             </div>
-
-            <button className="text-gray-400 hover:text-red-500 transition">
-              ✕
-            </button>
-          </div>
+          ))}
 
         </div>
 
-        {/* Empty State */}
-        <div className="text-center pt-8">
-          <div className="text-5xl mb-2">📭</div>
-          <p className="text-gray-400 text-sm">
-            No tasks yet. Start by adding one!
-          </p>
-        </div>
+        {filteredTasks.length === 0 && (
+          <div className="text-center pt-8">
+            <div className="text-5xl mb-2">📭</div>
+            <p className="text-gray-400 text-sm">
+              No tasks yet. Start by adding one!
+            </p>
+          </div>
+        )}
 
       </div>
     </main>

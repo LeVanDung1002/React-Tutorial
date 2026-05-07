@@ -10,3 +10,6 @@ export const store = configureStore({
         todos: todoSlice
     }
 })
+
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch

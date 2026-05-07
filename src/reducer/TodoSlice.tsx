@@ -1,6 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
+export const TodoFilter = {
+  ALL: "ALL",
+  ACTIVE: "ACTIVE",
+  COMPLETED: "COMPLETED",
+} as const
+
 export type TodoType = {
     id: string,
     name: string,
@@ -9,20 +15,24 @@ export type TodoType = {
 }
 
 type TodoState = {
-    todos: TodoType[]
+    todos: TodoType[],
+    filterTag: string
 }
 
 const initialState: TodoState = {
-    todos: []
+    todos: [],
+    filterTag: TodoFilter.ALL
 }
 
 const todoSlice = createSlice({
     name: "todos",
     initialState,
     reducers: {
-        addTodo: (state, action: PayloadAction<Omit<TodoType, "id">>) => {
+        addTodo: (state, action: PayloadAction<string>) => {
             state.todos.push({
-                ...action.payload,
+                name: action.payload,
+                date: new Date().toDateString(),
+                isCompleted: false,
                 id: crypto.randomUUID()
             })
         },
@@ -36,9 +46,13 @@ const todoSlice = createSlice({
             if (todo) {
                 todo.isCompleted = !todo.isCompleted
             }
+        },
+
+        filterTodo: (state, action: PayloadAction<string>) => {
+            state.filterTag = action.payload
         }
     }
 })
 
-export const { addTodo, deleteTodo, toggleTodo } = todoSlice.actions
+export const { addTodo, deleteTodo, toggleTodo, filterTodo } = todoSlice.actions
 export default todoSlice.reducer
