@@ -57,7 +57,7 @@ text-gray-500 hover:text-red-500 hover:bg-red-50 transition-all duration-200 gro
             </aside>
 
             {/* Content */}
-            <main className="flex-1 relative">
+            <main className="flex-1 relative overflow-y-scroll">
                 <TaskManager isOpen={navClick === Tab.TASK} />
                 <ProductExplorer isOpen={navClick === Tab.PRODUCT} />
             </main>
