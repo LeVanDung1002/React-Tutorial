@@ -6,6 +6,8 @@ import type { AppDispatch, RootState } from "../../../store/store";
 import { fetchProductCategories } from "../../thunk/fetchProductCategories";
 import { usePagination } from "../../../hooks/usePagination";
 import { Pagination } from "../../pagination/Pagination";
+import { useNavigate } from "react-router-dom";
+import { capitalize } from "../../utils/stringUtils";
 
 type ProductExplorerProps = {
     isOpen: boolean
@@ -18,6 +20,7 @@ export default function ProductExplorer({ isOpen }: ProductExplorerProps) {
     const isLoading = useSelector((state: RootState) => state.products.isLoading)
     const [search, setSearch] = useState("")
     const filter = useSelector((state: RootState) => state.products.filter)
+    const navigate = useNavigate()
 
     const filteredTasks = useMemo(() => {
         return products.filter(
@@ -45,9 +48,6 @@ export default function ProductExplorer({ isOpen }: ProductExplorerProps) {
         dispatch(fetchProducts())
     }, [])
 
-    const capitalize = (text: string) => {
-        return text.charAt(0).toUpperCase() + text.slice(1)
-    }
 
     if (!isOpen) return null
 
@@ -61,7 +61,7 @@ export default function ProductExplorer({ isOpen }: ProductExplorerProps) {
 
     return (
         <main
-            className={`absolute inset-0 p-8 space-y-6 transition-all duration-300
+            className={`absolute box-border inset-0 p-8 space-y-6 transition-all duration-300
             ${isOpen
                     ? "opacity-100 translate-y-0 pointer-events-auto"
                     : "opacity-0 translate-y-2 pointer-events-none"}
@@ -130,7 +130,7 @@ export default function ProductExplorer({ isOpen }: ProductExplorerProps) {
                                     ${product.price}
                                 </span>
 
-                                <button className="text-sm px-3 py-1 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200">
+                                <button className="text-sm px-3 py-1 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200" onClick={() => navigate(`/products/${product.id}`)}>
                                     View
                                 </button>
                             </div>
