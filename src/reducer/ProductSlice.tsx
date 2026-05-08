@@ -4,6 +4,8 @@ import { fetchProducts } from "../components/thunk/fetchProduct";
 import { fetchProductById } from "../components/thunk/fetchProductById";
 import { fetchProductCategories } from "../components/thunk/fetchProductCategories";
 
+export const ProductFilter = { ALL: "All" }
+
 export type ProductType = {
     id: number
     title: string
@@ -22,6 +24,7 @@ type ProductState = {
     isLoading: boolean
     error: string | null
     categories: string[]
+    filter: string
 }
 
 const initialState: ProductState = {
@@ -29,7 +32,8 @@ const initialState: ProductState = {
     selectedProduct: null,
     isLoading: false,
     error: null,
-    categories: []
+    categories: [],
+    filter: ProductFilter.ALL
 }
 
 const productSlice = createSlice({
@@ -38,6 +42,10 @@ const productSlice = createSlice({
     reducers: {
         clearSelectedProduct: (state) => {
             state.selectedProduct = null
+        },
+
+        filterProduct: (state, action: PayloadAction<string>) => {
+            state.filter = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -98,5 +106,5 @@ const productSlice = createSlice({
     }
 })
 
-export const { clearSelectedProduct } = productSlice.actions
+export const { clearSelectedProduct, filterProduct } = productSlice.actions
 export default productSlice.reducer

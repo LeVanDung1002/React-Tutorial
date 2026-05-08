@@ -1,5 +1,5 @@
-import { useEffect } from "react"
-import type { ProductType } from "../../../reducer/ProductSlice"
+import { useEffect, useMemo, useState } from "react"
+import { filterProduct, ProductFilter, type ProductType } from "../../../reducer/ProductSlice"
 import { fetchProducts } from "../../thunk/fetchProduct"
 import { useDispatch, useSelector } from "react-redux"
 import type { AppDispatch, RootState } from "../../../store/store";
@@ -16,8 +16,21 @@ export default function ProductExplorer({ isOpen }: ProductExplorerProps) {
     const products = useSelector((state: RootState) => state.products.products)
     const categories = useSelector((state: RootState) => state.products.categories)
     const isLoading = useSelector((state: RootState) => state.products.isLoading)
+    const [search, setSearch] = useState("")
+    const filter = useSelector((state: RootState) => state.products.filter)
 
-    const { currentPage, totalPages, value, handlePage } = usePagination<ProductType>(products)
+    const filteredTasks = useMemo(() => {
+        return products.filter(
+            (product) =>
+                (filter === ProductFilter.ALL ||
+                    product.category === filter) &&
+                product.title
+                    .toLowerCase()
+                    .includes(search.toLowerCase())
+        )
+    }, [filter, products, search])
+
+    const { currentPage, totalPages, value, handlePage } = usePagination<ProductType>(filteredTasks)
 
 
     const dispatch = useDispatch<AppDispatch>()
@@ -58,19 +71,22 @@ export default function ProductExplorer({ isOpen }: ProductExplorerProps) {
                 <input
                     placeholder="Search products..."
                     className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                 />
             </div>
 
             {/* Filter / Category */}
             <div className="flex gap-2 flex-wrap">
-                {categories.map((item, i) => (
+                {[ProductFilter.ALL, ...categories].map((item, i) => (
                     <button
                         key={i}
                         className={`px-4 py-1.5 rounded-full text-sm border transition
-                ${i === 0
+                        ${filter === item
                                 ? "bg-blue-600 text-white border-blue-600"
                                 : "text-gray-600 hover:bg-gray-100"}
-              `}
+                        `}
+                        onClick={() => dispatch(filterProduct(item))}
                     >
                         {capitalize(item)}
                     </button>
@@ -119,17 +135,35 @@ export default function ProductExplorer({ isOpen }: ProductExplorerProps) {
 
             </div>
 
+            {value.length === 0 && (
+                <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
+                    <div className="text-6xl mb-4">
+                        📦
+                    </div>
+
+                    <h2 className="text-xl font-semibold text-gray-700">
+                        No products found
+                    </h2>
+
+                    <p className="text-gray-500 mt-2">
+                        Try changing search or category
+                    </p>
+                </div>
+            )}
+
             {/* Pagination */}
-            <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={(page) =>
-                    handlePage({
-                        page,
-                        size: 8,
-                    })
-                }
-            />
+            {value.length > 0 && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={(page) =>
+                        handlePage({
+                            page,
+                            size: 8,
+                        })
+                    }
+                />
+            )}
 
         </main>
     )
