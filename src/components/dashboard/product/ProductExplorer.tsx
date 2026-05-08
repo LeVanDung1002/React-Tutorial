@@ -35,6 +35,11 @@ export default function ProductExplorer({ isOpen }: ProductExplorerProps) {
 
     const dispatch = useDispatch<AppDispatch>()
 
+    const handleFilter = (filterTag: string) => {
+        handlePage()
+        dispatch(filterProduct(filterTag))
+    }
+
     useEffect(() => {
         dispatch(fetchProductCategories())
         dispatch(fetchProducts())
@@ -86,7 +91,7 @@ export default function ProductExplorer({ isOpen }: ProductExplorerProps) {
                                 ? "bg-blue-600 text-white border-blue-600"
                                 : "text-gray-600 hover:bg-gray-100"}
                         `}
-                        onClick={() => dispatch(filterProduct(item))}
+                        onClick={() => handleFilter(item)}
                     >
                         {capitalize(item)}
                     </button>

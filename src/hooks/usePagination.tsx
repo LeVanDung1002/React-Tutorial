@@ -23,13 +23,15 @@ export function usePagination<T>(datas: T[]) {
     return datas.slice(start, end)
   }, [datas, currentPage, sizeOfPage])
 
-  const handlePage = ({
-    page,
-    size,
-  }: {
-    page: number
-    size: number
-  }) => {
+  const handlePage = (
+    {
+      page = DEFAULT_PAGE,
+      size = SIZE_OF_PAGE,
+    }: {
+      page?: number
+      size?: number
+    } = {}
+  ) => {
     setCurrentPage(page)
     setSizeOfPage(size)
   }
