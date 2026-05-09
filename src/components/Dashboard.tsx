@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import TaskManager from "./dashboard/task/TaskManager";
 import ProductExplorer from "./dashboard/product/ProductExplorer";
@@ -61,6 +61,8 @@ export default function DashboardUI() {
     });
   };
 
+  const navigate = useNavigate()
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex">
 
@@ -119,6 +121,7 @@ export default function DashboardUI() {
             transition-all duration-200
             group
           "
+          onClick={() => navigate("/logout")}
         >
           <span className="transition-transform duration-200 group-hover:translate-x-1">
             →

@@ -15,6 +15,7 @@ export default function Login() {
   const usernameField = useField("username")
   const passwordField = useField("password")
   const [submitted, setSubmitted] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,7 +24,24 @@ export default function Login() {
     if (usernameField.error || passwordField.error) return
 
     if (usernameField.value === "abcdef" && passwordField.value === "Abc123@@") {
-      dispatch(setUser({username: usernameField.value, password: passwordField.value} as UserInfo))
+      const user = { username: usernameField.value, password: passwordField.value } as UserInfo
+
+      if (rememberMe) {
+
+        localStorage.setItem(
+          "token",
+          JSON.stringify(user)
+        );
+
+      } else {
+
+        sessionStorage.setItem(
+          "token",
+          JSON.stringify(user)
+        );
+      }
+      
+      dispatch(setUser(user))
       navigate("/dashboard", { replace: true })
     }
   }
@@ -100,7 +118,10 @@ export default function Login() {
               className="accent-blue-600 w-4 h-4"
               id="rememberMe"
               name="remember"
-              value="yes"
+              checked={rememberMe}
+              onChange={(e) =>
+                setRememberMe(e.target.checked)
+              }
             />
             Remember me
           </label>

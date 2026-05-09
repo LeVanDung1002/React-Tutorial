@@ -6,6 +6,8 @@ export default function Logout() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
+      localStorage.removeItem("token")
+      sessionStorage.removeItem("token")
       navigate("/login");
     }, 2000);
 
