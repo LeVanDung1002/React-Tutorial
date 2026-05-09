@@ -16,7 +16,7 @@ export default function ProductDetail() {
   const product = useSelector(
     (state: RootState) => state.products.selectedProduct
   );
-  const isLoading =  useSelector(
+  const isLoading = useSelector(
     (state: RootState) => state.products.isLoading
   );
 
@@ -26,12 +26,12 @@ export default function ProductDetail() {
     dispatch(fetchProductById(id));
   }, [dispatch, id]);
 
-  if (isLoading) {
+  if (!product || product.id !== Number(id) || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-100">
         <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
       </div>
-    );
+    )
   }
 
   return (

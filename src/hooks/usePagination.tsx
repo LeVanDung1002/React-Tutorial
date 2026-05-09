@@ -1,46 +1,32 @@
-import { useMemo, useState } from "react"
+import { useMemo } from "react";
 
-const SIZE_OF_PAGE = 8
-const DEFAULT_PAGE = 1
+const SIZE_OF_PAGE = 8;
 
-export function usePagination<T>(datas: T[]) {
-  const [currentPage, setCurrentPage] =
-    useState(DEFAULT_PAGE)
-
-  const [sizeOfPage, setSizeOfPage] =
-    useState(SIZE_OF_PAGE)
+export function usePagination<T>(
+  datas: T[],
+  currentPage: number,
+  sizeOfPage: number = SIZE_OF_PAGE
+) {
 
   const totalPages = Math.ceil(
     datas.length / sizeOfPage
-  )
+  );
 
   const paginatedData = useMemo(() => {
+
     const start =
-      (currentPage - 1) * sizeOfPage
+      (currentPage - 1) * sizeOfPage;
 
-    const end = start + sizeOfPage
+    const end = start + sizeOfPage;
 
-    return datas.slice(start, end)
-  }, [datas, currentPage, sizeOfPage])
+    return datas.slice(start, end);
 
-  const handlePage = (
-    {
-      page = DEFAULT_PAGE,
-      size = SIZE_OF_PAGE,
-    }: {
-      page?: number
-      size?: number
-    } = {}
-  ) => {
-    setCurrentPage(page)
-    setSizeOfPage(size)
-  }
+  }, [datas, currentPage, sizeOfPage]);
 
   return {
     value: paginatedData,
+    totalPages,
     currentPage,
     sizeOfPage,
-    totalPages,
-    handlePage,
-  }
+  };
 }
